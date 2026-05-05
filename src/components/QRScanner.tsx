@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Html5QrcodeScanner } from 'html5-qrcode';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Target, X, Zap } from 'lucide-react';
 
 interface QRScannerProps {
@@ -22,7 +22,6 @@ export default function QRScanner({ onScan, onClose }: QRScannerProps) {
 
     const handleScan = async (decodedText: string) => {
       try {
-        // Parse ID from QR (assuming it's the JSON object from DigitalBadge)
         const qrData = JSON.parse(decodedText);
         const id = qrData.id;
 
@@ -115,9 +114,6 @@ export default function QRScanner({ onScan, onClose }: QRScannerProps) {
           <X className="w-6 h-6" />
         </button>
       </motion.div>
-    </div>
-  );
-}
     </div>
   );
 }
