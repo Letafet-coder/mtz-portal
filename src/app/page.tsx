@@ -8,21 +8,23 @@ import DigitalBadge from '@/components/DigitalBadge';
 import { Scan, UserPlus, ShieldAlert, Cpu } from 'lucide-react';
 
 export default function Home() {
-  const [view, setView] = useState<'landing' | 'register' | 'scan' | 'badge'>('landing');
+  const [view, setView] = useState<'landing' | 'register' | 'scan' | 'badge' | 'staff-login'>('landing');
   const [userData, setUserData] = useState<any>(null);
+  const [staffPassword, setStaffPassword] = useState('');
+  const [isStaff, setIsStaff] = useState(false);
 
   const handleRegisterSuccess = (data: any) => {
     setUserData(data);
     setView('badge');
   };
 
-  const handleScanSuccess = (decodedText: string) => {
-    try {
-      const data = JSON.parse(decodedText);
-      setUserData(data);
-      setView('badge');
-    } catch (e) {
-      alert("Geçersiz QR Kod. Lütfen geçerli bir MTZ Delege Kartı tarayın.");
+  const handleStaffLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (staffPassword === 'MTZ2026') { // Simple demo password
+      setIsStaff(true);
+      setView('scan');
+    } else {
+      alert("Hatalı Görevli Şifresi!");
     }
   };
 
@@ -69,11 +71,11 @@ export default function Home() {
                 KATILIMCI KAYDI
               </button>
               <button 
-                onClick={() => setView('scan')}
+                onClick={() => setView('staff-login')}
                 className="group relative px-8 py-4 bg-transparent border border-white/20 text-white font-bold rounded-xl flex items-center gap-3 backdrop-blur-md hover:bg-white/5 transition-all hover:scale-105 active:scale-95"
               >
                 <Scan className="w-5 h-5 text-primary" />
-                KART TARA
+                GÖREVLİ GİRİŞİ
               </button>
             </div>
 
@@ -91,6 +93,23 @@ export default function Home() {
           </motion.div>
         )}
 
+        {view === 'staff-login' && (
+          <motion.div key="staff-login" className="w-full max-w-md glass-panel p-8 rounded-2xl">
+            <h2 className="text-2xl font-bold mb-6 text-center">Görevli Kimlik Doğrulama</h2>
+            <form onSubmit={handleStaffLogin} className="space-y-4">
+              <input 
+                type="password" 
+                placeholder="Görevli Şifresi"
+                className="w-full bg-accent/50 border border-white/10 rounded-lg py-3 px-4 outline-none focus:border-primary/50"
+                value={staffPassword}
+                onChange={(e) => setStaffPassword(e.target.value)}
+              />
+              <button className="w-full bg-primary text-black font-bold py-3 rounded-lg">GİRİŞ YAP</button>
+              <button type="button" onClick={() => setView('landing')} className="w-full text-gray-500 text-sm">Geri Dön</button>
+            </form>
+          </motion.div>
+        )}
+
         {view === 'register' && (
           <div key="register" className="w-full flex flex-col items-center gap-8">
             <RegisterForm onSuccess={handleRegisterSuccess} />
@@ -103,10 +122,13 @@ export default function Home() {
           </div>
         )}
 
-        {view === 'scan' && (
+        {view === 'scan' && isStaff && (
           <QRScanner 
             key="scan"
-            onScan={handleScanSuccess} 
+            onScan={(data) => {
+              setUserData(data);
+              setView('badge');
+            }} 
             onClose={() => setView('landing')} 
           />
         )}

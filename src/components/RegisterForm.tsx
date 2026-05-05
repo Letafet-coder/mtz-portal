@@ -16,10 +16,26 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
     role: ''
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate API call
-    onSuccess(formData);
+    
+    try {
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+      
+      const result = await response.json();
+      if (result.success) {
+        onSuccess(result.data);
+      } else {
+        alert("Kayıt sırasında bir hata oluştu.");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Sunucu bağlantı hatası.");
+    }
   };
 
   return (

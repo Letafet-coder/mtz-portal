@@ -6,12 +6,12 @@ import { motion } from 'framer-motion';
 import { Target, X, Zap } from 'lucide-react';
 
 interface QRScannerProps {
-  onScan: (decodedText: string) => void;
+  onScan: (data: any) => void;
   onClose: () => void;
 }
 
 export default function QRScanner({ onScan, onClose }: QRScannerProps) {
-  const [isScanning, setIsScanning] = useState(true);
+  const [result, setResult] = useState<{ success: boolean; message: string } | null>(null);
 
   useEffect(() => {
     const scanner = new Html5QrcodeScanner(
@@ -20,18 +20,35 @@ export default function QRScanner({ onScan, onClose }: QRScannerProps) {
       /* verbose= */ false
     );
 
-    scanner.render(
-      (decodedText) => {
-        scanner.clear();
-        onScan(decodedText);
-      },
-      (error) => {
-        // quiet fail
+    const handleScan = async (decodedText: string) => {
+      try {
+        // Parse ID from QR (assuming it's the JSON object from DigitalBadge)
+        const qrData = JSON.parse(decodedText);
+        const id = qrData.id;
+
+        const response = await fetch('/api/scan', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id }),
+        });
+
+        const data = await response.json();
+        setResult({ success: data.success, message: data.message });
+
+        if (data.success) {
+          setTimeout(() => {
+            onScan(data.user);
+          }, 2000);
+        }
+      } catch (e) {
+        setResult({ success: false, message: "Geçersiz MTZ Kartı!" });
       }
-    );
+    };
+
+    scanner.render(handleScan, () => {});
 
     return () => {
-      scanner.clear().catch(err => console.error("Failed to clear scanner", err));
+      scanner.clear().catch(() => {});
     };
   }, [onScan]);
 
@@ -56,11 +73,36 @@ export default function QRScanner({ onScan, onClose }: QRScannerProps) {
           <div className="absolute top-8 left-0 w-full flex justify-center">
             <div className="flex items-center gap-2 bg-primary/20 backdrop-blur-md px-4 py-1 rounded-full border border-primary/50">
               <Zap className="w-4 h-4 text-primary animate-bounce" />
-              <span className="text-[10px] font-bold tracking-[0.2em] text-primary uppercase">HEDEF TARANIYOR...</span>
+              <span className="text-[10px] font-bold tracking-[0.2em] text-primary uppercase">GÖREVLİ TARAMA MODU</span>
             </div>
           </div>
 
           <div className="scan-line" />
+
+          {/* Result Overlay */}
+          <AnimatePresence>
+            {result && (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                className={`absolute inset-0 z-30 flex items-center justify-center p-8 text-center ${result.success ? 'bg-secondary/90' : 'bg-red-900/90'}`}
+              >
+                <div>
+                  <h2 className="text-3xl font-black mb-2 uppercase">{result.success ? 'GİRİŞ ONAYLANDI' : 'ERİŞİM REDDEDİLDİ'}</h2>
+                  <p className="font-bold">{result.message}</p>
+                  {!result.success && (
+                    <button 
+                      onClick={() => setResult(null)}
+                      className="mt-6 px-6 py-2 bg-white text-black font-bold rounded-lg"
+                    >
+                      TEKRAR DENE
+                    </button>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Scanner Container */}
@@ -68,19 +110,14 @@ export default function QRScanner({ onScan, onClose }: QRScannerProps) {
 
         <button 
           onClick={onClose}
-          className="absolute top-4 right-4 z-20 p-2 rounded-full bg-black/50 border border-white/10 text-white hover:bg-red-500/50 transition-colors"
+          className="absolute top-4 right-4 z-40 p-2 rounded-full bg-black/50 border border-white/10 text-white hover:bg-red-500/50 transition-colors"
         >
           <X className="w-6 h-6" />
         </button>
-
-        {/* Demo Button for the USER */}
-        <button 
-          onClick={() => onScan(JSON.stringify({ name: "Ahmet Yılmaz", organization: "ASELSAN", email: "ahmet@aselsan.com.tr" }))}
-          className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 px-4 py-2 rounded-full bg-primary/20 border border-primary/40 text-primary text-[10px] font-bold tracking-widest hover:bg-primary/40 transition-all"
-        >
-          SİMÜLASYON: KART TARA
-        </button>
       </motion.div>
+    </div>
+  );
+}
     </div>
   );
 }
