@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { User, Mail, Building, ArrowRight, ShieldCheck } from 'lucide-react';
+import { toast } from 'sonner';
+
 
 interface RegisterFormProps {
   onSuccess: (data: any) => void;
@@ -28,13 +30,14 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
       
       const result = await response.json();
       if (result.success) {
+        toast.success("Kayıt başarıyla oluşturuldu.");
         onSuccess(result.data);
       } else {
-        alert("Kayıt sırasında bir hata oluştu.");
+        toast.error("Kayıt sırasında bir hata oluştu.");
       }
     } catch (error) {
       console.error(error);
-      alert("Sunucu bağlantı hatası.");
+      toast.error("Sunucu bağlantı hatası.");
     }
   };
 

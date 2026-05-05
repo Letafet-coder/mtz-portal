@@ -6,6 +6,8 @@ import RegisterForm from '@/components/RegisterForm';
 import QRScanner from '@/components/QRScanner';
 import DigitalBadge from '@/components/DigitalBadge';
 import { Scan, UserPlus, ShieldAlert, Cpu } from 'lucide-react';
+import { toast } from 'sonner';
+
 
 export default function Home() {
   const [view, setView] = useState<'landing' | 'register' | 'scan' | 'badge' | 'staff-login'>('landing');
@@ -23,8 +25,9 @@ export default function Home() {
     if (staffPassword === 'MTZ2026') { // Simple demo password
       setIsStaff(true);
       setView('scan');
+      toast.success("Görevli girişi başarılı.");
     } else {
-      alert("Hatalı Görevli Şifresi!");
+      toast.error("Hatalı Görevli Şifresi!");
     }
   };
 

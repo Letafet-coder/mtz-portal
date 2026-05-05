@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Target, X, Zap } from 'lucide-react';
+import { toast } from 'sonner';
+
 
 interface QRScannerProps {
   onScan: (data: any) => void;
@@ -40,6 +42,7 @@ export default function QRScanner({ onScan, onClose }: QRScannerProps) {
           }, 2000);
         }
       } catch (e) {
+        toast.error("Geçersiz veya bozuk QR kod!");
         setResult({ success: false, message: "Geçersiz MTZ Kartı!" });
       }
     };

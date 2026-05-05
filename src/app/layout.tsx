@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { Toaster } from 'sonner';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -31,6 +32,7 @@ export default function RootLayout({
   return (
     <html lang="tr" className="dark">
       <body className={`${inter.className} bg-[#0a0f1e] text-white min-h-screen relative`}>
+        <Toaster theme="dark" richColors position="top-center" />
         <div className="fixed inset-0 tech-grid pointer-events-none opacity-20" />
         <div className="relative z-10">
           {children}
