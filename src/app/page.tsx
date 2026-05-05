@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import RegisterForm from '@/components/RegisterForm';
 import QRScanner from '@/components/QRScanner';
 import DigitalBadge from '@/components/DigitalBadge';
-import { Scan, UserPlus, ShieldAlert, Cpu } from 'lucide-react';
+import { Scan, UserPlus, ShieldAlert, Cpu, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 
 
@@ -13,6 +13,7 @@ export default function Home() {
   const [view, setView] = useState<'landing' | 'register' | 'scan' | 'badge' | 'staff-login'>('landing');
   const [userData, setUserData] = useState<any>(null);
   const [staffPassword, setStaffPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isStaff, setIsStaff] = useState(false);
 
   const handleRegisterSuccess = (data: any) => {
@@ -98,17 +99,26 @@ export default function Home() {
 
         {view === 'staff-login' && (
           <motion.div key="staff-login" className="w-full max-w-md glass-panel p-8 rounded-2xl">
-            <h2 className="text-2xl font-bold mb-6 text-center">Görevli Kimlik Doğrulama</h2>
+            <h2 className="text-2xl font-bold mb-6 text-center tracking-tight">Görevli Kimlik Doğrulama</h2>
             <form onSubmit={handleStaffLogin} className="space-y-4">
-              <input 
-                type="password" 
-                placeholder="Görevli Şifresi"
-                className="w-full bg-accent/50 border border-white/10 rounded-lg py-3 px-4 outline-none focus:border-primary/50"
-                value={staffPassword}
-                onChange={(e) => setStaffPassword(e.target.value)}
-              />
-              <button className="w-full bg-primary text-black font-bold py-3 rounded-lg">GİRİŞ YAP</button>
-              <button type="button" onClick={() => setView('landing')} className="w-full text-gray-500 text-sm">Geri Dön</button>
+              <div className="relative">
+                <input 
+                  type={showPassword ? "text" : "password"} 
+                  placeholder="Görevli Şifresi"
+                  className="w-full bg-accent/50 border border-white/10 rounded-lg py-4 px-4 pr-12 outline-none focus:border-primary/50 transition-all"
+                  value={staffPassword}
+                  onChange={(e) => setStaffPassword(e.target.value)}
+                />
+                <button 
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-primary transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+              <button className="w-full bg-primary text-black font-bold py-4 rounded-lg tech-blue-glow active:scale-95 transition-all">GİRİŞ YAP</button>
+              <button type="button" onClick={() => setView('landing')} className="w-full text-gray-500 text-sm font-bold uppercase tracking-widest mt-4">Geri Dön</button>
             </form>
           </motion.div>
         )}
